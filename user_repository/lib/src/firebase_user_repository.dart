@@ -7,16 +7,33 @@ class FirebaseUserRepository implements UserRepository {
   FirebaseUserRepository({FirebaseAuth firebaseAuth})
       : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance;
 
-  Future<bool> isAuthenticated() async {
-    final currentUser = await _firebaseAuth.currentUser();
-    return currentUser != null;
+  @override
+  Future<FirebaseUser> getUser() async {
+    return await _firebaseAuth.currentUser();
   }
 
-  Future<void> authenticate() {
-    return _firebaseAuth.signInAnonymously();
+  @override
+  Future<bool> isSignedIn() async {
+    return await getUser() != null;
   }
 
-  Future<String> getUserId() async {
-    return (await _firebaseAuth.currentUser()).uid;
+  @override
+  Future<void> signOut() async {
+    await _firebaseAuth.signOut();
   }
+
+  @override
+  Future<FirebaseUser> signUp({String email, String password}) async {
+    final result = await _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
+    return result.user;
+  }
+
+  @override
+  Future<FirebaseUser> signIn({String email, String password}) async {
+    final result = await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
+
+    return result.user;
+  }
+
+
 }
